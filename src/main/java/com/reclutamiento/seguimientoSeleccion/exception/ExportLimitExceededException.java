@@ -16,8 +16,12 @@ public class ExportLimitExceededException extends RuntimeException {
     private final int maxAllowed;
     private final int requested;
 
+    /**
+     * Constructor sin mensaje concreto, para permitir internacionalización desde el handler.
+     */
     public ExportLimitExceededException(String format, int maxAllowed, int requested) {
-        super(String.format("La cantidad de filas (%d) excede el límite máximo permitido para exportación en formato '%s': %d", requested, format, maxAllowed));
+        // Mensaje técnico solo para fines de desarrollo/log
+        super("Export limit exceeded");
         this.format = format;
         this.maxAllowed = maxAllowed;
         this.requested = requested;

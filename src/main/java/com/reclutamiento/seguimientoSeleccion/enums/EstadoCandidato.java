@@ -4,28 +4,37 @@ import lombok.Getter;
 
 /**
  * Enum que representa el estado actual del candidato dentro del sistema.
+ * Cada estado incluye una clave de mensaje asociada para su localización (i18n).
  */
 @Getter
 public enum EstadoCandidato {
 
     /**
-     * Candidato activo que puede postularse a ofertas.
+     * El candidato está activo en el proceso de selección.
      */
-    ACTIVO("Activo"),
+    ACTIVO("estadoCandidato.activo"),
 
     /**
-     * Candidato inactivo, posiblemente por eliminación lógica o baja voluntaria.
+     * El candidato está inactivo y no participa actualmente en procesos de selección.
      */
-    INACTIVO("Inactivo"),
+    INACTIVO("estadoCandidato.inactivo"),
 
     /**
-     * Candidato bloqueado por motivos administrativos o disciplinarios.
+     * El candidato ha sido bloqueado del sistema por alguna razón administrativa.
      */
-    BLOQUEADO("Bloqueado");
+    BLOQUEADO("estadoCandidato.bloqueado");
 
-    private final String label;
+    /**
+     * Clave de mensaje usada para la localización del estado.
+     */
+    private final String messageKey;
 
-    EstadoCandidato(String label) {
-        this.label = label;
+    /**
+     * Constructor del enum que asigna la clave de mensaje.
+     *
+     * @param messageKey clave utilizada para la localización del estado
+     */
+    EstadoCandidato(String messageKey) {
+        this.messageKey = messageKey;
     }
 }

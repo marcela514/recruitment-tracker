@@ -3,6 +3,8 @@ package com.reclutamiento.seguimientoSeleccion.exception;
 import com.reclutamiento.seguimientoSeleccion.dto.ErrorResponse;
 import com.reclutamiento.seguimientoSeleccion.dto.ValidationErrorDetail;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,37 +14,52 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
- * Manejador global de excepciones para la aplicación.
+ * Manejador global de excepciones para la API.
  * <p>
- * Intercepta las excepciones lanzadas desde los controladores y
- * genera respuestas consistentes y estructuradas en forma de {@link ErrorResponse}.
+ * Esta clase centraliza el tratamiento de errores comunes lanzados durante el procesamiento de peticiones HTTP.
+ * Se encarga de construir respuestas consistentes con mensajes internacionalizados y estructuras uniformes.
  */
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
+    private final MessageSource messageSource;
+
     /**
-     * Maneja errores de validación que ocurren cuando se usa {@code @Valid} en los controladores
-     * y los datos de entrada no cumplen con las restricciones.
+     * Obtiene un mensaje internacionalizado para un {@link ErrorCode} dado.
      *
-     * @param ex      excepción lanzada por errores de validación de campos
-     * @param request contexto de la solicitud web
-     * @return respuesta con estado 400 (Bad Request) y detalles de los errores de validación
+     * @param errorCode Código de error.
+     * @param locale    Localización actual.
+     * @return Mensaje localizado o clave si no se encuentra traducción.
+     */
+    private String getLocalizedMessage(ErrorCode errorCode, Locale locale) {
+        return messageSource.getMessage(errorCode.getMessageKey(), null, locale);
+    }
+
+    /**
+     * Maneja errores de validación lanzados por anotaciones {@code @Valid} al usar {@link MethodArgumentNotValidException}.
+     *
+     * @param ex      Excepción capturada.
+     * @param request Detalles de la solicitud.
+     * @return Respuesta con detalles de validación.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex, WebRequest request) {
+        Locale locale = request.getLocale();
         List<ValidationErrorDetail> validationErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(err -> new ValidationErrorDetail(err.getField(), err.getDefaultMessage()))
                 .collect(Collectors.toList());
 
-        ErrorResponse error = ErrorResponse.ofValidationErrors(
+        ErrorResponse error = ErrorResponse.fromValidationErrors(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Validation Error",
+                getLocalizedMessage(ErrorCode.VALIDATION_ERROR, locale),
                 validationErrors,
                 request.getDescription(false).replace("uri=", "")
         );
@@ -52,24 +69,24 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja violaciones de restricciones de validación definidas en los beans,
-     * como {@code @NotNull}, {@code @Size}, etc., cuando se usan fuera de los controladores.
+     * Maneja errores de violación de restricciones como {@link jakarta.validation.constraints.NotNull} u otras validaciones a nivel de clase.
      *
-     * @param ex      excepción lanzada por validaciones de restricciones
-     * @param request contexto de la solicitud
-     * @return respuesta con estado 400 (Bad Request) y mensajes de error relacionados
+     * @param ex      Excepción capturada.
+     * @param request Detalles de la solicitud.
+     * @return Respuesta con mensajes de error específicos.
      */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
+        Locale locale = request.getLocale();
         List<String> messages = ex.getConstraintViolations()
                 .stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                 .collect(Collectors.toList());
 
-        ErrorResponse error = ErrorResponse.ofMessages(
+        ErrorResponse error = ErrorResponse.fromMessages(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Validation Error",
+                getLocalizedMessage(ErrorCode.CONSTRAINT_VIOLATION, locale),
                 messages,
                 request.getDescription(false).replace("uri=", "")
         );
@@ -79,18 +96,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja excepciones de tipo {@link NotFoundException}, típicamente cuando un recurso no se encuentra.
+     * Maneja errores cuando no se encuentra un recurso específico.
      *
-     * @param ex      excepción personalizada para recursos no encontrados
-     * @param request contexto de la solicitud web
-     * @return respuesta con estado 404 (Not Found) y mensaje del error
+     * @param ex      Excepción {@link NotFoundException} personalizada.
+     * @param request Detalles de la solicitud.
+     * @return Respuesta con mensaje de error 404.
      */
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex, WebRequest request) {
-        ErrorResponse error = ErrorResponse.ofMessages(
+        Locale locale = request.getLocale();
+        ErrorResponse error = ErrorResponse.fromMessages(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
-                "Not Found",
+                getLocalizedMessage(ErrorCode.NOT_FOUND, locale),
                 List.of(ex.getMessage()),
                 request.getDescription(false).replace("uri=", "")
         );
@@ -100,19 +118,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja excepciones de tipo {@link IllegalArgumentException},
-     * que ocurren generalmente por argumentos inválidos en las solicitudes.
+     * Maneja errores provocados por argumentos ilegales, como estados inválidos o entradas fuera de rango.
      *
-     * @param ex      excepción lanzada por argumentos inválidos
-     * @param request contexto de la solicitud
-     * @return respuesta con estado 400 (Bad Request) y mensaje del error
+     * @param ex      Excepción {@link IllegalArgumentException}.
+     * @param request Detalles de la solicitud.
+     * @return Respuesta con error 400.
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, WebRequest request) {
-        ErrorResponse error = ErrorResponse.ofMessages(
+        Locale locale = request.getLocale();
+        ErrorResponse error = ErrorResponse.fromMessages(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
+                getLocalizedMessage(ErrorCode.BAD_REQUEST, locale),
                 List.of(ex.getMessage()),
                 request.getDescription(false).replace("uri=", "")
         );
@@ -122,19 +140,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja excepciones genéricas que extienden de {@link RuntimeException}.
-     * Actúa como un catch-all para errores no controlados en tiempo de ejecución.
+     * Maneja excepciones no controladas a nivel de aplicación.
      *
-     * @param ex      excepción lanzada en tiempo de ejecución
-     * @param request contexto de la solicitud
-     * @return respuesta con estado 500 (Internal Server Error) y mensaje del error
+     * @param ex      Cualquier excepción de tipo {@link RuntimeException}.
+     * @param request Detalles de la solicitud.
+     * @return Respuesta genérica con error 500.
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex, WebRequest request) {
-        ErrorResponse error = ErrorResponse.ofMessages(
+        Locale locale = request.getLocale();
+        ErrorResponse error = ErrorResponse.fromMessages(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
+                getLocalizedMessage(ErrorCode.INTERNAL_ERROR, locale),
                 List.of(ex.getMessage()),
                 request.getDescription(false).replace("uri=", "")
         );
@@ -143,17 +161,33 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    /**
+     * Maneja errores relacionados con exceder un límite de exportación.
+     *
+     * @param ex      Excepción {@link ExportLimitExceededException} personalizada.
+     * @param request Detalles de la solicitud.
+     * @return Respuesta con error 400.
+     */
     @ExceptionHandler(ExportLimitExceededException.class)
     public ResponseEntity<ErrorResponse> handleExportLimitExceeded(ExportLimitExceededException ex, WebRequest request) {
-        ErrorResponse error = ErrorResponse.ofMessages(
+        Locale locale = request.getLocale();
+
+        String message = messageSource.getMessage(
+                ErrorCode.EXPORT_LIMIT_EXCEEDED.getMessageKey(),
+                new Object[]{ex.getRequested(), ex.getFormat(), ex.getMaxAllowed()},
+                locale
+        );
+
+        ErrorResponse error = ErrorResponse.fromMessages(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Export Limit Exceeded",
-                List.of(ex.getMessage()),
+                getLocalizedMessage(ErrorCode.EXPORT_LIMIT_EXCEEDED, locale),
+                List.of(message),
                 request.getDescription(false).replace("uri=", "")
         );
-        error.setErrorCode(ErrorCode.BAD_REQUEST.getCode());
+        error.setErrorCode(ErrorCode.EXPORT_LIMIT_EXCEEDED.getCode());
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
 }

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 /**
  * Enum que representa los distintos niveles educativos alcanzados por un candidato.
+ * Cada valor contiene una clave de mensaje para facilitar la localización (i18n).
  */
 @Getter
 public enum NivelEducativo {
@@ -11,36 +12,44 @@ public enum NivelEducativo {
     /**
      * Educación primaria.
      */
-    PRIMARIA("Primaria"),
+    PRIMARIA("nivelEducativo.primaria"),
 
     /**
      * Educación secundaria o bachillerato.
      */
-    SECUNDARIA("Secundaria"),
+    SECUNDARIA("nivelEducativo.secundaria"),
 
     /**
-     * Educación técnica o tecnológica.
+     * Estudios técnicos o tecnológicos.
      */
-    TECNICO_TECNOLOGO("Técnico/Tecnólogo"),
+    TECNICO_TECNOLOGO("nivelEducativo.tecnico_tecnologo"),
 
     /**
-     * Pregrado universitario (Licenciatura).
+     * Educación universitaria de pregrado.
      */
-    UNIVERSITARIO("Universitario"),
+    UNIVERSITARIO("nivelEducativo.universitario"),
 
     /**
-     * Estudios de posgrado (Especialización, Maestría).
+     * Estudios de posgrado, como especialización o maestría.
      */
-    POSGRADO("Posgrado"),
+    POSGRADO("nivelEducativo.posgrado"),
 
     /**
-     * Doctorado o PhD.
+     * Nivel de doctorado o PhD.
      */
-    DOCTORADO("Doctorado");
+    DOCTORADO("nivelEducativo.doctorado");
 
-    private final String label;
+    /**
+     * Clave de mensaje utilizada para la localización del nivel educativo.
+     */
+    private final String messageKey;
 
-    NivelEducativo(String label) {
-        this.label = label;
+    /**
+     * Constructor del enum que asigna la clave de mensaje.
+     *
+     * @param messageKey clave utilizada para la localización
+     */
+    NivelEducativo(String messageKey) {
+        this.messageKey = messageKey;
     }
 }

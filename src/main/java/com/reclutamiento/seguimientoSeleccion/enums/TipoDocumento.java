@@ -4,43 +4,52 @@ import lombok.Getter;
 
 /**
  * Enum que representa los tipos de documento de identidad que un candidato puede poseer.
+ * Cada valor incluye una clave de mensaje que facilita la internacionalización (i18n).
  */
 @Getter
 public enum TipoDocumento {
 
     /**
-     * Cédula de ciudadanía (Colombia).
+     * Cédula de ciudadanía (típico de Colombia).
      */
-    CC("Cédula de ciudadanía"),
+    CC("tipoDocumento.cc"),
 
     /**
      * Cédula de extranjería.
      */
-    CE("Cédula de extranjería"),
+    CE("tipoDocumento.ce"),
 
     /**
      * Pasaporte.
      */
-    PASAPORTE("Pasaporte"),
+    PASAPORTE("tipoDocumento.pasaporte"),
 
     /**
-     * Documento Nacional de Identidad.
+     * Documento Nacional de Identidad (usado en varios países de habla hispana).
      */
-    DNI("Documento Nacional de Identidad"),
+    DNI("tipoDocumento.dni"),
 
     /**
-     * Licencia de conducción (en algunos países se acepta como documento válido).
+     * Licencia de conducción.
      */
-    LICENCIA_CONDUCCION("Licencia de conducción"),
+    LICENCIA_CONDUCCION("tipoDocumento.licencia_conduccion"),
 
     /**
-     * Otro tipo de documento no especificado.
+     * Otro tipo de documento no especificado en las opciones anteriores.
      */
-    OTRO("Otro");
+    OTRO("tipoDocumento.otro");
 
-    private final String label;
+    /**
+     * Clave de mensaje para localización.
+     */
+    private final String messageKey;
 
-    TipoDocumento(String label) {
-        this.label = label;
+    /**
+     * Constructor que asigna la clave de mensaje al tipo de documento.
+     *
+     * @param messageKey Clave de internacionalización asociada al tipo de documento.
+     */
+    TipoDocumento(String messageKey) {
+        this.messageKey = messageKey;
     }
 }
