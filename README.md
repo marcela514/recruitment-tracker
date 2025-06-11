@@ -26,39 +26,42 @@ El proyecto está estructurado siguiendo una arquitectura en capas, con separaci
 
 ---
 
-## ✅ Funcionalidades Principales (MVP)
+## ✅ Funcionalidades Implementadas (actualmente)
 
 ### 👤 Módulo Candidatos
+
 - Registro de aspirantes con datos personales.
+- Exportación de la información a:
+  - PDF
+  - Excel
+  - CSV
+
+> ⚠️ Este proyecto está desarrollado y ejecutado localmente en un equipo con recursos limitados, con fines de aprendizaje en Java y Spring Boot. Sin embargo, toda la estructura se ha diseñado considerando su posible escalabilidad en el futuro.
+
+---
+
+## 🔧 Funcionalidades Planeadas (MVP)
+
 - Postulación a ofertas laborales.
-- Consulta del estado actual del proceso:
-  - Etapa actual.
-  - Porcentaje de avance.
-  - Filtros completados vs. pendientes.
-
-### 📝 Módulo Ofertas Laborales
-- Gestión de cargos disponibles.
-- Asociación de cada oferta con filtros o etapas del proceso.
-
-### 📊 Módulo Filtros / Etapas
-- Registro de etapas del proceso (Ej: entrevista, prueba técnica).
-- Orden y peso configurable por etapa (para cálculo de avance).
-- Registro de avance por candidato.
+- Consulta de estado y progreso del proceso de selección.
+- Gestión de ofertas laborales.
+- Gestión de filtros/etapas del proceso de selección.
 
 ---
 
 ## 🧪 Tecnologías Utilizadas
 
-| Componente            | Tecnología          |
-|----------------------|---------------------|
-| Lenguaje             | Java 17             |
-| Framework principal  | Spring Boot         |
-| Gestión de dependencias | Maven           |
-| Base de datos        | PostgreSQL          |
-| Concurrencia         | ConcurrentHashMap (modo local/test) |
-| Asincronía           | Spring `@Async` + `CompletableFuture` |
-| IDE                  | IntelliJ IDEA       |
-| Control de versiones | Git                 |
+| Componente              | Tecnología                                  |
+|------------------------|---------------------------------------------|
+| Lenguaje               | Java 17                                     |
+| Framework principal    | Spring Boot                                 |
+| Gestión de dependencias| Maven                                       |
+| Base de datos          | PostgreSQL                                  |
+| Exportaciones          | Apache POI, iText PDF                       |
+| Concurrencia (temporal)| ConcurrentHashMap (modo local/test)         |
+| Asincronía             | Spring `@Async` + `CompletableFuture`       |
+| IDE                    | IntelliJ IDEA                               |
+| Control de versiones   | Git                                         |
 
 ---
 
@@ -74,48 +77,48 @@ El proyecto está estructurado siguiendo una arquitectura en capas, con separaci
 
 1. **Clona el repositorio**
 
-   ```bash
-   git clone https://github.com/tu-usuario/nombre-repo.git
-   cd nombre-repo
-   ```
+    ```bash
+    git clone https://github.com/tu-usuario/nombre-repo.git
+    cd nombre-repo
+    ```
 
 2. **Configura la base de datos**
 
-   Crea una base de datos PostgreSQL con el nombre deseado. Luego, edita el archivo `src/main/resources/application.properties` con tus credenciales:
+    Crea una base de datos PostgreSQL con el nombre deseado. Luego, edita el archivo `src/main/resources/application.properties` con tus credenciales:
 
-   ```properties
-   spring.datasource.url=jdbc:postgresql://localhost:5432/nombre_db
-   spring.datasource.username=tu_usuario
-   spring.datasource.password=tu_password
-   spring.jpa.hibernate.ddl-auto=update
-   ```
+    ```properties
+    spring.datasource.url=jdbc:postgresql://localhost:5432/nombre_db
+    spring.datasource.username=tu_usuario
+    spring.datasource.password=tu_password
+    spring.jpa.hibernate.ddl-auto=update
+    ```
 
 3. **Ejecuta la aplicación**
 
-   ```bash
-   mvn spring-boot:run
-   ```
+    ```bash
+    mvn spring-boot:run
+    ```
 
-   La API estará disponible en: `http://localhost:8080`
+    La API estará disponible en: `http://localhost:8080`
 
 ---
 
 ## 📂 Estructura del Proyecto
 
-```
+<pre>
 src
- └── main
-     ├── java
-     │   └── com.example.seleccion
-     │       ├── controller
-     │       ├── dto
-     │       ├── entity
-     │       ├── repository
-     │       └── service
-     └── resources
-         ├── application.properties
-         └── data.sql (opcional)
-```
+└── main
+    ├── java
+    │   └── com.example.seleccion
+    │       ├── controller
+    │       ├── dto
+    │       ├── entity
+    │       ├── repository
+    │       └── service
+    └── resources
+        ├── application.properties
+        └── data.sql (opcional)
+</pre>
 
 ---
 
