@@ -34,3 +34,6 @@ build/
 
 # Archivos de entorno
 .env
+
+desktop.ini
+
