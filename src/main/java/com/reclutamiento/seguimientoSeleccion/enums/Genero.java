@@ -7,7 +7,7 @@ import lombok.Getter;
  * Incluye una clave de mensaje para permitir la localización (i18n).
  */
 @Getter
-public enum Genero {
+public enum Genero implements LocalizableEnum {
 
     /**
      * Género masculino.
@@ -41,5 +41,10 @@ public enum Genero {
      */
     Genero(String messageKey) {
         this.messageKey = messageKey;
+    }
+
+    @Override
+    public String getMessageKey() {
+        return messageKey;
     }
 }

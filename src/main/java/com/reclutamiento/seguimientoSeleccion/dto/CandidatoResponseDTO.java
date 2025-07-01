@@ -1,5 +1,6 @@
 package com.reclutamiento.seguimientoSeleccion.dto;
 
+import com.reclutamiento.seguimientoSeleccion.logging.Sensitive;
 import lombok.Data;
 
 /**
@@ -23,11 +24,13 @@ public class CandidatoResponseDTO {
     /**
      * Correo electrónico del candidato.
      */
+    @Sensitive
     private String email;
 
     /**
      * Número de teléfono del candidato.
      */
+    @Sensitive
     private String telefono;
 
     /**
@@ -38,6 +41,7 @@ public class CandidatoResponseDTO {
     /**
      * Etiqueta legible del tipo de documento.
      */
+    @Sensitive
     private String tipoDocumentoLabel;
 
     /**
@@ -99,4 +103,27 @@ public class CandidatoResponseDTO {
      * Fecha en la que se registró el candidato en el sistema, en formato de texto.
      */
     private String fechaRegistro;
+
+    /**
+     * Nombre del usuario que creó el registro.
+     */
+    private String creadoPor;
+
+    /**
+     * Fecha y hora en que se creó el registro.
+     * Representada como texto (por ejemplo, formato ISO 8601).
+     */
+    private String fechaCreacion;
+
+    /**
+     * Nombre del usuario que realizó la última modificación del registro.
+     */
+    private String modificadoPor;
+
+    /**
+     * Fecha y hora de la última modificación del registro.
+     * Representada como texto (por ejemplo, formato ISO 8601).
+     */
+    private String fechaModificacion;
+
 }

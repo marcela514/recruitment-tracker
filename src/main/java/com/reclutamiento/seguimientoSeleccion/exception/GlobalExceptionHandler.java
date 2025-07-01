@@ -162,30 +162,40 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja errores relacionados con exceder un límite de exportación.
+     * Maneja las excepciones de tipo {@link ExportLimitExceededException} que ocurren cuando un usuario
+     * intenta exportar más elementos de los permitidos en un formato específico.
+     * <p>
+     * Este método construye una respuesta detallada con un mensaje localizado, incluyendo el número de elementos
+     * solicitados, el formato de exportación y el límite máximo permitido, para proporcionar retroalimentación clara
+     * al cliente.
      *
-     * @param ex      Excepción {@link ExportLimitExceededException} personalizada.
-     * @param request Detalles de la solicitud.
-     * @return Respuesta con error 400.
+     * @param ex      la excepción lanzada que contiene detalles del límite excedido.
+     * @param request la solicitud web actual, usada para obtener la localización (locale) del cliente.
+     * @return una {@link ResponseEntity} con un objeto {@link ErrorResponse} que describe el error,
+     *         con código de estado {@code 400 Bad Request}.
      */
     @ExceptionHandler(ExportLimitExceededException.class)
     public ResponseEntity<ErrorResponse> handleExportLimitExceeded(ExportLimitExceededException ex, WebRequest request) {
         Locale locale = request.getLocale();
 
-        String message = messageSource.getMessage(
-                ErrorCode.EXPORT_LIMIT_EXCEEDED.getMessageKey(),
+        String title = messageSource.getMessage(
+                ErrorCode.EXPORT_LIMIT_EXCEEDED.getMessageKey() + ".title", null, locale);
+
+        String detailMessage = messageSource.getMessage(
+                ErrorCode.EXPORT_LIMIT_EXCEEDED.getMessageKey() + ".detail",
                 new Object[]{ex.getRequested(), ex.getFormat(), ex.getMaxAllowed()},
-                locale
-        );
+                locale);
+
 
         ErrorResponse error = ErrorResponse.fromMessages(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
-                getLocalizedMessage(ErrorCode.EXPORT_LIMIT_EXCEEDED, locale),
-                List.of(message),
+                title,
+                List.of(detailMessage),
                 request.getDescription(false).replace("uri=", "")
         );
         error.setErrorCode(ErrorCode.EXPORT_LIMIT_EXCEEDED.getCode());
+
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }

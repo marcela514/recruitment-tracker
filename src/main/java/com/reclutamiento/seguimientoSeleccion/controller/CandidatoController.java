@@ -1,6 +1,7 @@
 package com.reclutamiento.seguimientoSeleccion.controller;
 
 import com.reclutamiento.seguimientoSeleccion.dto.*;
+import com.reclutamiento.seguimientoSeleccion.logging.Loggable;
 import com.reclutamiento.seguimientoSeleccion.service.AsyncExportService;
 import com.reclutamiento.seguimientoSeleccion.service.CandidatoService;
 import jakarta.validation.Valid;
@@ -17,8 +18,16 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Controlador REST para la gestión de candidatos en el proceso de selección.
- * Provee endpoints para CRUD, actualización parcial y exportación de candidatos.
+ * <p>
+ * Proporciona endpoints para operaciones CRUD, actualizaciones parciales y exportaciones
+ * de candidatos, incluyendo exportaciones asíncronas.
+ * </p>
+ *
+ * @see com.reclutamiento.seguimientoSeleccion.service.CandidatoService
+ * @see com.reclutamiento.seguimientoSeleccion.dto.CandidatoResponseDTO
+ * @see com.reclutamiento.seguimientoSeleccion.dto.ExportRequestDTO
  */
+@Loggable
 @RestController
 @RequestMapping("/api/candidatos")
 @Validated
@@ -30,8 +39,8 @@ public class CandidatoController {
     /**
      * Constructor con inyección de dependencias.
      *
-     * @param candidatoService servicio que maneja la lógica de negocio relacionada con candidatos
-     * @param asyncExportService servicio encargado de la exportación asíncrona
+     * @param candidatoService    servicio que maneja la lógica de negocio relacionada con candidatos
+     * @param asyncExportService  servicio encargado de la exportación asíncrona de candidatos
      */
     @Autowired
     public CandidatoController(CandidatoService candidatoService, AsyncExportService asyncExportService) {
@@ -40,10 +49,10 @@ public class CandidatoController {
     }
 
     /**
-     * Obtiene una lista paginada de todos los candidatos.
+     * Obtiene una lista paginada de todos los candidatos registrados.
      *
-     * @param pageable información de paginación (página, tamaño, orden)
-     * @return lista paginada de candidatos
+     * @param pageable información de paginación como número de página, tamaño y orden
+     * @return respuesta con la lista paginada de candidatos
      */
     @GetMapping
     public ResponseEntity<PagedResponse<CandidatoResponseDTO>> getAll(Pageable pageable) {
@@ -51,10 +60,10 @@ public class CandidatoController {
     }
 
     /**
-     * Obtiene los detalles de un candidato por su ID.
+     * Obtiene los detalles de un candidato específico por su ID.
      *
-     * @param id identificador del candidato
-     * @return candidato correspondiente al ID
+     * @param id identificador único del candidato
+     * @return DTO con los datos del candidato correspondiente
      */
     @GetMapping("/{id}")
     public ResponseEntity<CandidatoResponseDTO> getById(@PathVariable Long id) {
@@ -62,10 +71,10 @@ public class CandidatoController {
     }
 
     /**
-     * Crea un nuevo candidato.
+     * Crea un nuevo candidato en el sistema.
      *
-     * @param dto datos del candidato a crear
-     * @return candidato creado
+     * @param dto datos del candidato a registrar
+     * @return DTO con los datos del candidato creado
      */
     @PostMapping
     public ResponseEntity<CandidatoResponseDTO> create(@Valid @RequestBody CandidatoCreateDTO dto) {
@@ -73,11 +82,11 @@ public class CandidatoController {
     }
 
     /**
-     * Actualiza completamente un candidato existente por su ID.
+     * Actualiza completamente los datos de un candidato existente por su ID.
      *
-     * @param id identificador del candidato
-     * @param dto datos actualizados del candidato
-     * @return candidato actualizado
+     * @param id  identificador del candidato a actualizar
+     * @param dto DTO con los datos actualizados
+     * @return DTO con los datos del candidato actualizado
      */
     @PutMapping("/{id}")
     public ResponseEntity<CandidatoResponseDTO> update(
@@ -87,11 +96,11 @@ public class CandidatoController {
     }
 
     /**
-     * Actualiza parcialmente los datos de un candidato por su ID.
+     * Realiza una actualización parcial sobre los datos de un candidato.
      *
-     * @param id identificador del candidato
-     * @param dto campos a actualizar del candidato
-     * @return candidato actualizado parcialmente
+     * @param id  identificador del candidato
+     * @param dto DTO con los campos a modificar
+     * @return DTO con los datos actualizados parcialmente
      */
     @PatchMapping("/{id}")
     public ResponseEntity<CandidatoResponseDTO> patch(
@@ -101,9 +110,9 @@ public class CandidatoController {
     }
 
     /**
-     * Elimina un candidato por su ID.
+     * Elimina un candidato del sistema por su ID.
      *
-     * @param id identificador del candidato
+     * @param id identificador del candidato a eliminar
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -113,30 +122,36 @@ public class CandidatoController {
 
     /**
      * Inicia una exportación asíncrona de candidatos en el formato especificado.
+     * <p>
+     * Si {@code exportAll} es {@code true}, se exportan todos los registros disponibles.
+     * En caso contrario, se exporta únicamente la página solicitada.
+     * </p>
      *
-     * @param format formato de exportación: pdf, excel o csv
-     * @param page página de resultados a exportar
-     * @param size tamaño de página
-     * @return mensaje de aceptación con el ID de la exportación
+     * @param requestDTO DTO con los parámetros de exportación, incluyendo formato, paginación y tipo de exportación
+     * @return respuesta con estado 202 Accepted y el ID de la exportación iniciada
      */
     @PostMapping("/export/async")
     public CompletableFuture<ResponseEntity<String>> exportAsync(
-            @RequestParam String format,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "100") int size) {
+            @Valid @RequestBody ExportRequestDTO requestDTO) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = requestDTO.isExportAll()
+                ? Pageable.unpaged()
+                : PageRequest.of(requestDTO.getPage(), requestDTO.getSize());
 
-        return candidatoService.exportarCandidatosAsync(format, pageable)
+        return candidatoService.exportarCandidatosAsync(requestDTO.getFormat(), pageable)
                 .thenApply(id -> ResponseEntity.accepted()
                         .body("Exportación en proceso. ID: " + id));
     }
 
     /**
-     * Obtiene el resultado de una exportación asíncrona previamente iniciada.
+     * Devuelve el resultado de una exportación asíncrona previamente iniciada.
+     * <p>
+     * Si la exportación aún no ha sido completada o no existe, devuelve un mensaje informativo.
+     * De lo contrario, retorna el archivo exportado como adjunto.
+     * </p>
      *
-     * @param exportId identificador de la exportación
-     * @return archivo exportado si está disponible, o mensaje de estado
+     * @param exportId identificador único de la exportación
+     * @return archivo exportado o mensaje de estado
      */
     @GetMapping("/export/async/{exportId}")
     public ResponseEntity<?> getExportAsync(@PathVariable String exportId) {

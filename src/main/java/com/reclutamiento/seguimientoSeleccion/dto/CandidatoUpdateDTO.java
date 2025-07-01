@@ -4,6 +4,7 @@ import com.reclutamiento.seguimientoSeleccion.enums.EstadoCandidato;
 import com.reclutamiento.seguimientoSeleccion.enums.Genero;
 import com.reclutamiento.seguimientoSeleccion.enums.NivelEducativo;
 import com.reclutamiento.seguimientoSeleccion.enums.TipoDocumento;
+import com.reclutamiento.seguimientoSeleccion.logging.Sensitive;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -21,26 +22,28 @@ public class CandidatoUpdateDTO {
      * No debe estar vacío y tiene un máximo de 100 caracteres.
      */
     @NotBlank(message = "El nombre es obligatorio")
-    @Size(max = 100, message = "El nombre no debe superar los 100 caracteres")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "El nombre solo debe contener letras y espacios")
     private String nombre;
 
     /**
      * Correo electrónico del candidato.
      * Debe tener un formato válido y no superar los 100 caracteres.
      */
+    @Sensitive
     @NotBlank(message = "El correo electrónico es obligatorio")
-    @Email(message = "Debe ser un correo electrónico válido")
-    @Size(max = 100, message = "El correo no debe superar los 100 caracteres")
+    @Email(message = "El correo electrónico debe tener un formato válido")
+    @Size(max = 100, message = "El correo electrónico no debe superar los 100 caracteres")
     private String email;
 
     /**
      * Número de teléfono del candidato.
      * Debe tener entre 7 y 15 dígitos, opcionalmente comenzando con '+'.
      */
+    @Sensitive
     @NotBlank(message = "El número de teléfono es obligatorio")
     @Pattern(
-            regexp = "^\\+?\\d{7,15}$",
-            message = "Debe tener entre 7 y 15 dígitos, y puede iniciar con +"
+            regexp = "^\\+?[0-9]{7,15}$",
+            message = "El número de teléfono debe tener entre 7 y 15 dígitos y puede comenzar con '+'"
     )
     private String telefono;
 
@@ -55,8 +58,10 @@ public class CandidatoUpdateDTO {
      * Número del documento de identidad del candidato.
      * No puede estar vacío y tiene un máximo de 20 caracteres.
      */
+    @Sensitive
     @NotBlank(message = "El número de documento es obligatorio")
-    @Size(max = 20, message = "El documento no debe superar los 20 caracteres")
+    @Size(max = 20, message = "El número de documento no debe superar los 20 caracteres")
+    @Pattern(regexp = "^[0-9]{5,20}$", message = "El documento debe contener solo números entre 5 y 20 dígitos")
     private String documentoIdentidad;
 
     /**
@@ -65,6 +70,7 @@ public class CandidatoUpdateDTO {
      */
     @NotBlank(message = "El país de residencia es obligatorio")
     @Size(max = 50, message = "El país no debe superar los 50 caracteres")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "El país solo debe contener letras y espacios")
     private String paisResidencia;
 
     /**
@@ -73,6 +79,7 @@ public class CandidatoUpdateDTO {
      */
     @NotBlank(message = "La ciudad de residencia es obligatoria")
     @Size(max = 50, message = "La ciudad no debe superar los 50 caracteres")
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$", message = "La ciudad solo debe contener letras y espacios")
     private String ciudadResidencia;
 
     /**
@@ -103,8 +110,8 @@ public class CandidatoUpdateDTO {
      */
     @Size(max = 255, message = "La URL de LinkedIn no debe superar los 255 caracteres")
     @Pattern(
-            regexp = "^(|https?://(www\\.)?linkedin\\.com/.*)$",
-            message = "Debe ser una URL válida de LinkedIn o estar vacía"
+            regexp = "^(https?://)?(www\\.)?linkedin\\.com/(in|pub)/[a-zA-Z0-9\\-_%]+/?$",
+            message = "La URL debe ser válida y provenir de LinkedIn"
     )
     private String linkedinUrl;
 

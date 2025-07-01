@@ -1,5 +1,7 @@
 package com.reclutamiento.seguimientoSeleccion.export;
 
+import com.reclutamiento.seguimientoSeleccion.enums.ExportFormat;
+
 /**
  * Fábrica para obtener la estrategia de exportación (Excel o PDF).
  */
@@ -13,11 +15,11 @@ public class ExportStrategyFactory {
      * @return estrategia concreta para exportar
      */
     @SuppressWarnings("unchecked")
-    public static <T> ExportStrategy<T> getStrategy(String format) throws IllegalArgumentException {
-        return switch (format.toLowerCase()) {
-            case "excel" -> (ExportStrategy<T>) new ExcelExporter<>();
-            case "pdf" -> (ExportStrategy<T>) new PdfExporter<>();
-            case "csv" -> (ExportStrategy<T>) new CsvExporter<>();
+    public static <T> ExportStrategy<T> getStrategy(ExportFormat format) throws IllegalArgumentException {
+        return switch (format) {
+            case PDF -> (ExportStrategy<T>) new PdfExporter<>();
+            case EXCEL -> (ExportStrategy<T>) new ExcelExporter<>();
+            case CSV -> (ExportStrategy<T>) new CsvExporter<>();
             default -> throw new IllegalArgumentException("Formato de exportación no soportado: " + format);
         };
     }

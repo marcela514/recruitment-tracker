@@ -7,7 +7,7 @@ import lombok.Getter;
  * Cada valor contiene una clave de mensaje para facilitar la localización (i18n).
  */
 @Getter
-public enum NivelEducativo {
+public enum NivelEducativo implements LocalizableEnum {
 
     /**
      * Educación primaria.
@@ -51,5 +51,10 @@ public enum NivelEducativo {
      */
     NivelEducativo(String messageKey) {
         this.messageKey = messageKey;
+    }
+
+    @Override
+    public String getMessageKey() {
+        return messageKey;
     }
 }

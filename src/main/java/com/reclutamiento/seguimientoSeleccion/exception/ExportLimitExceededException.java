@@ -1,5 +1,6 @@
 package com.reclutamiento.seguimientoSeleccion.exception;
 
+import com.reclutamiento.seguimientoSeleccion.enums.ExportFormat;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -12,14 +13,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ExportLimitExceededException extends RuntimeException {
 
-    private final String format;
+    private final ExportFormat format;
     private final int maxAllowed;
     private final int requested;
 
     /**
      * Constructor sin mensaje concreto, para permitir internacionalización desde el handler.
      */
-    public ExportLimitExceededException(String format, int maxAllowed, int requested) {
+    public ExportLimitExceededException(ExportFormat format, int maxAllowed, int requested) {
         // Mensaje técnico solo para fines de desarrollo/log
         super("Export limit exceeded");
         this.format = format;

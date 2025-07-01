@@ -7,7 +7,7 @@ import lombok.Getter;
  * Cada estado incluye una clave de mensaje asociada para su localización (i18n).
  */
 @Getter
-public enum EstadoCandidato {
+public enum EstadoCandidato implements LocalizableEnum {
 
     /**
      * El candidato está activo en el proceso de selección.
@@ -36,5 +36,10 @@ public enum EstadoCandidato {
      */
     EstadoCandidato(String messageKey) {
         this.messageKey = messageKey;
+    }
+
+    @Override
+    public String getMessageKey() {
+        return messageKey;
     }
 }

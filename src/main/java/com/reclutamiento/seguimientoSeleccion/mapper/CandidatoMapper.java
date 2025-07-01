@@ -2,11 +2,12 @@ package com.reclutamiento.seguimientoSeleccion.mapper;
 
 import com.reclutamiento.seguimientoSeleccion.dto.*;
 import com.reclutamiento.seguimientoSeleccion.model.Candidato;
-import com.reclutamiento.seguimientoSeleccion.enums.*;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import static com.reclutamiento.seguimientoSeleccion.util.EnumLabelUtil.getLabel;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Mapper para transformar entre entidades {@link Candidato} y sus distintos DTOs
@@ -70,24 +71,43 @@ public abstract class CandidatoMapper {
         var locale = LocaleContextHolder.getLocale();
 
         if (candidato.getEstado() != null) {
-            dto.setEstadoLabel(getMessage(candidato.getEstado().getMessageKey(), locale));
+            dto.setEstadoLabel(getLabel(candidato.getEstado(), messageSource, locale));
             dto.setEstado(candidato.getEstado().name());
         }
 
         if (candidato.getGenero() != null) {
-            dto.setGeneroLabel(getMessage(candidato.getGenero().getMessageKey(), locale));
+            dto.setGeneroLabel(getLabel(candidato.getGenero(), messageSource, locale));
             dto.setGenero(candidato.getGenero().name());
         }
 
         if (candidato.getTipoDocumento() != null) {
-            dto.setTipoDocumentoLabel(getMessage(candidato.getTipoDocumento().getMessageKey(), locale));
+            dto.setTipoDocumentoLabel(getLabel(candidato.getTipoDocumento(), messageSource, locale));
             dto.setTipoDocumento(candidato.getTipoDocumento().name());
         }
 
         if (candidato.getNivelEducativo() != null) {
-            dto.setNivelEducativoLabel(getMessage(candidato.getNivelEducativo().getMessageKey(), locale));
+            dto.setNivelEducativoLabel(getLabel(candidato.getNivelEducativo(), messageSource, locale));
             dto.setNivelEducativo(candidato.getNivelEducativo().name());
         }
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        if (candidato.getCreatedBy() != null) {
+            dto.setCreadoPor(candidato.getCreatedBy());
+        }
+
+        if (candidato.getCreatedAt() != null) {
+            dto.setFechaCreacion(dateTimeFormatter.format(candidato.getCreatedAt()));
+        }
+
+        if (candidato.getModifiedBy() != null) {
+            dto.setModificadoPor(candidato.getModifiedBy());
+        }
+
+        if (candidato.getUpdatedAt() != null) {
+            dto.setFechaModificacion(dateTimeFormatter.format(candidato.getUpdatedAt()));
+        }
+
     }
 
     /**

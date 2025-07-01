@@ -53,8 +53,17 @@ public class PaginatedExportDataProvider<T> implements ExportDataProvider<T> {
         return page.getContent();
     }
 
+    /**
+     * Obtiene el total de registros. Si aún no se ha calculado,
+     * realiza una llamada con paginación mínima para estimarlo.
+     */
     @Override
     public int getTotalCount() {
+        if (totalCount == -1) {
+            Page<T> page = pageFetcher.apply(Pageable.ofSize(1).withPage(0)); // solo para obtener el total
+            totalCount = (int) page.getTotalElements();
+        }
         return totalCount;
     }
+
 }

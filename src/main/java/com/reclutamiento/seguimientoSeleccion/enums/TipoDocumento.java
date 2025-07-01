@@ -7,7 +7,7 @@ import lombok.Getter;
  * Cada valor incluye una clave de mensaje que facilita la internacionalización (i18n).
  */
 @Getter
-public enum TipoDocumento {
+public enum TipoDocumento implements LocalizableEnum {
 
     /**
      * Cédula de ciudadanía (típico de Colombia).
@@ -51,5 +51,10 @@ public enum TipoDocumento {
      */
     TipoDocumento(String messageKey) {
         this.messageKey = messageKey;
+    }
+
+    @Override
+    public String getMessageKey() {
+        return messageKey;
     }
 }
